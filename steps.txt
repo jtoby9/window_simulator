@@ -1,0 +1,27 @@
+Steps to get this code running on a new system
+
+1. Flash SD card with Raspi imager, setting the following in settings:
+	- enable ssh
+	- set hostname to window
+	- set username and password
+	- configure wireless lan
+	- set locale
+2. install git
+3. Generate ssh key
+4. Add ssh key to github account
+5. Set git email and name
+6. Set vim to not use arrow keys/backspace https://askubuntu.com/questions/296385/backspace-in-insert-mode-in-vi-doesnt-erase-the-character
+7. Enable root ssh (and also give root a password) https://raspberrytips.com/login-as-root/
+8. Install pip3 (apt-get install python3-pip)
+9. Install neopixel library
+	sudo pip3 install rpi_ws281x adafruit-circuitpython-neopixel
+	sudo python3 -m pip install --force-reinstall adafruit-blinka
+10. Install pigpio (https://abyz.me.uk/rpi/pigpio/download.html)
+	- Installing with apt-get will install the systemd service which you also need to enable
+	- Not sure if it's necessary to install with wget before apt-get
+11. Copy systemd unit file and enable the service (https://github.com/torfsen/python-systemd-tutorial)
+12. Add reboot and systemctl to sudoers (https://unix.stackexchange.com/questions/18830/how-to-run-a-specific-program-as-root-without-a-password-prompt)
+13. Make bash aliases for easier running (https://askubuntu.com/questions/17536/how-do-i-create-a-permanent-bash-alias)
+14. Enable passwordless ssh (https://linuxize.com/post/how-to-setup-passwordless-ssh-login/)
+15. Change default ssh directory (https://serverfault.com/questions/499565/change-default-directory-when-i-ssh-to-server)
+	- Use .profile

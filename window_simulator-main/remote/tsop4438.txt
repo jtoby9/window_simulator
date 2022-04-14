@@ -1,0 +1,15 @@
+No pullup, cap or filtering - baseline (30%)
+100nF Cap between Vs and GND - same
+Internal pullup - worse
+External 10k pullup - worse
+
+Low pass with 10k
+
+100nF - no
+10nF - worse
+1nF - same
+100pF - better
+68pf - same
+56pf - same
+
+

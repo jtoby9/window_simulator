@@ -1,0 +1,22 @@
+Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:Button codes regarding roku IR controller:
+Button Code - ok: 0x357e354abL
+Button Code - back: 0x357e36699L
+Button Code - home: 0x357e3c03fL
+Button Code - power: 0x357e3e817L
+Button Code - up: 0x357e39867L
+Button Code - left: 0x357e37887L
+Button Code - right: 0x357e3b44bL
+Button Code - down: 0x357e3cc33L
+Button Code - volume_up: 0x357e3f00fL
+Button Code - volume_down: 0x357e308f7L
+Button Code - mute: 0x357e304fbL
+Button Code - arrow: 0x357e31ee1L
+Button Code - moon: 0x357e346b9L
+Button Code - star: 0x357e38679L
+Button Code - rewind: 0x357e32cd3L
+Button Code - play/pause: 0x357e332cdL
+Button Code - fast_forward: 0x357e3aa55L
+Button Code - netflix: 0x357e34ab5L
+Button Code - disney+: 0x357e330cfL
+Button Code - hulu: 0x357e3b24dL
+Button Code - : 0x357e310efLButton codes regarding roku IR controller:

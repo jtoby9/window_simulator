@@ -1,0 +1,2 @@
+- More patterns
+- Instead of having one alarm per day of the week, just have them whenever like the Android clock app

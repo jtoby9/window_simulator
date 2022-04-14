@@ -1,0 +1,2 @@
+- Make systemd service
+- Find a way to stop the thread while alarm is running
