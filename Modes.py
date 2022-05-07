@@ -1,6 +1,7 @@
 import time
 import random
 import collections
+from threading import Event
 
 # Implement a default version of every optional function
 class Mode():
@@ -133,7 +134,7 @@ class Rainbow(Mode):
                 b = int(255 - pos*3)
             leds[j] = (r, g, b, 0)
         leds.show()
-        time.sleep(.001)
+        event.wait(.001)
             
         # Increment cycles
         self.cycles += 1
@@ -208,7 +209,7 @@ class Strobe(Mode):
                 brightness = 255 * ((i + j) % 2)
                 leds[j] = (brightness, brightness, brightness, brightness)
             leds.show()
-            time.sleep(self.strobe_time / 2)
+            event.wait(self.strobe_time / 2)
             color(leds, 0, 0, 0, 0, self.strobe_time / 2)
 
 class Random(Mode):
@@ -245,7 +246,7 @@ class Random(Mode):
     def cycle(self, leds):
         # Wait if holding the final color value
         if self.time_to_wait > 0:
-            time.sleep(self.cycle_time)
+            event.wait(self.cycle_time)
             self.time_to_wait -= self.cycle_time
         # If the list of colors to display is empty, build it up
         elif len(self.colors) == 0:            
@@ -297,7 +298,7 @@ class Cylon(Mode):
         for i in list(range(leds.n - 1)) + list(range(leds.n - 1, 0, -1)):
             color_one_led(leds, i, self.cylon_color)
             leds.show()
-            time.sleep(self.cylon_time)
+            event.wait(self.cylon_time)
         
 
 class Scroll(Mode):
@@ -398,7 +399,7 @@ class Read(Mode):
             else:
                 leds[i] = (0, 0, 0, 0)
         leds.show()
-        time.sleep(self.cycle_time)
+        event.wait(self.cycle_time)
         
 # Data for every mode:
         
@@ -415,6 +416,9 @@ class_dict = {
     Cascade.name : Cascade,
     Read.name : Read,
 }
+# Dummy event object to use for waits. Do not ever set the internal flag
+event = Event()
+
 
 # Takes the name of a mode, returns the mode class
 def get_class(name):
@@ -444,7 +448,7 @@ def flatten(leds, brightness, sleep_time):
         else:
             leds[i] = (0, 0, quotient, quotient)
     leds.show()
-    time.sleep(sleep_time)
+    event.wait(sleep_time)
     
 # Set one LED to one color, set everything else to another color. Does not call show()
 def color_one_led(leds, index, color, other_color=(0, 0, 0, 0)):
@@ -466,13 +470,13 @@ def queue_push(leds, color, sleep_time, dir_is_right=True):
         leds[0:leds.n - 1] = leds[1:leds.n]
         leds[leds.n - 1] = color
     leds.show()
-    time.sleep(sleep_time)
+    event.wait(sleep_time)
         
 # Sets every LED to the r, g, b, and w values given, calls show(), and sleeps for the time given
 def color(leds, r, g, b, w, sleep_time):
     leds.fill((r, g, b, w))
     leds.show()
-    time.sleep(sleep_time)
+    event.wait(sleep_time)
 
 # Closes the gap between a color value and its maximum or minimum value by the factor specified
 def color_multiply(color_value, increase, factor):

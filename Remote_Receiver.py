@@ -9,8 +9,10 @@ class Remote_Receiver(Thread):
     def __init__(self, pi, stop_event, to_led_strip):
         # Set up logger object
         self.logger = logging.getLogger(__name__)
-        
+              
         # Initialize remote receiver properties
+        self.wait_time = .1 # seconds
+        # Button codes
         self.button_dict = {
             0x157e304fb: "mute",
             0x157e308f7: "volume_down",
@@ -34,7 +36,33 @@ class Remote_Receiver(Thread):
             0x157e3e817: "power",
             0x157e3f00f: "volume_up",
         }
-        self.wait_time = .1 # seconds
+        # Command for each button
+        self.command_dict = {
+            # Modes
+            "power"         : "color 0 0 0 0",
+            "netflix"       : "color 255 0 0 255",
+            "mute"          : "color 255 255 255 255",
+            "disney+"       : "read",
+            "hulu"          : "read 2",
+            "left"          : "fade",
+            "right"         : "random",
+            "ok"            : "rainbow",
+            "back"          : "scroll",
+            "home"          : "cascade",
+            "vudu"          : "cylon",
+            
+            # Modifiers
+            "up"            : "modify increase brightness",
+            "down"          : "modify decrease brightness",
+            "arrow"         : "modify increase r",
+            "rewind"        : "modify decrease r",
+            "moon"          : "modify increase g",
+            "play/pause"    : "modify decrease g",
+            "star"          : "modify increase b",
+            "fast_forward"  : "modify decrease b",
+            "volume_up"     : "modify increase w",
+            "volume_down"   : "modify decrease w",       
+        }
         
         # Set up GPIO
         self.pin = 17
@@ -46,8 +74,11 @@ class Remote_Receiver(Thread):
         self.last_tick = 0
         self.current_code = 1
         self.codes_received = queue.Queue()
-        self.pulse_done = 10000 # milliseconds
+        self.pulse_done = 10000 # microseconds
         self.wait_time = 1 # seconds
+        self.last_code_received = 0
+        self.last_button_pressed = ""
+        self.echo_gap = 500000 # microseconds
 
         # Initialize queue
         self.to_led_strip = to_led_strip
@@ -62,14 +93,18 @@ class Remote_Receiver(Thread):
         # Get pulse length
         pulse_length = tick - self.last_tick
         self.last_tick = tick
+        code_done = False
         
         # If the pin has been high or low for a long time, then this code is done transmitting
         if pulse_length > self.pulse_done:
-            # Strip off extra characters
-            if self.current_code.bit_length() > 34:
+            code_done = True
+            # Fix common errors
+            if self.current_code.bit_length() > 34: # extra bits
                 self.current_code = self.current_code >> (self.current_code.bit_length() - 34)
-            self.codes_received.put_nowait(self.current_code)
-            self.current_code = 0
+            if self.current_code > 0x200000000: # extra leading 1
+                self.current_code -= 0x200000000
+            if self.current_code & 0x100 and self.current_code % 2 == 0: # echo
+                self.current_code -= 0xFF
         
         # Otherwise, decode the message based on low pulse length
         elif level == 0:
@@ -79,91 +114,37 @@ class Remote_Receiver(Thread):
                 self.current_code += 1
                 
         # If the current code is in the dictionary, then it is done transmitting
-        if self.current_code in self.button_dict:
-            self.codes_received.put_nowait(self.current_code)
+        code_done |= self.current_code in self.button_dict
+            
+        # If the current code is done trasmitting, put it in the queue and reset current code
+        if code_done:
+            self.codes_received.put_nowait((self.current_code, tick))
             self.current_code = 0     
                                 
     # Run function
     def run(self):
         while not self.stop_event.is_set():
             try:
-                remote_code = self.codes_received.get(True, self.wait_time)
+                remote_code, tick = self.codes_received.get(True, self.wait_time)
                 if remote_code in self.button_dict:
-                    # Generate command
                     button = self.button_dict[remote_code]
-                    self.logger.debug("IR receiver detected " + button + " pressed")                    
-                    # Modes
-                    if button == "power":
-                        command = "color 0 0 0 0"
-                        
-                    elif button == "netflix":
-                        command = "color 255 0 0 255"
-                        
-                    elif button == "disney+":
-                        command = "read"
-                        
-                    elif button == "hulu":
-                        command = "read 2"
-                        
-                    elif button == "left":
-                        command = "fade"
-                    
-                    elif button == "right":
-                        command = "random"
-                        
-                    elif button == "ok":
-                        command = "rainbow"
-                        
-                    elif button == "back":
-                        command = "scroll"
-                        
-                    elif button == "home":
-                        command = "cascade"
-                    
-                    elif button == "vudu":
-                        command = "cylon"
-                        
-                    elif button == "mute":
-                        command = "color 128 128 128 128"
-                        
-                    # Modify
-                    elif button == "up":
-                        command = "modify increase brightness"
-                        
-                    elif button == "down":
-                        command = "modify decrease brightness"
-                        
-                    elif button == "arrow":
-                        command = "modify increase r"
-                        
-                    elif button == "rewind":
-                        command = "modify decrease r"
-                        
-                    elif button == "moon":
-                        command = "modify increase g"
-                        
-                    elif button == "play/pause":
-                        command = "modify decrease g"
-                        
-                    elif button == "star":
-                        command = "modify increase b"
-                        
-                    elif button == "fast_forward":
-                        command = "modify decrease b"
-                        
-                    elif button == "volume_up":
-                        command = "modify increase w"
-                        
-                    elif button == "volume_down":
-                        command = "modify decrease w"
-                                                
+                    # If this code was just received, this is an echo
+                    if button == self.last_button_pressed and tick - self.last_code_received < self.echo_gap:
+                        self.logger.debug("Echo received on {} button, gap of {}us".format(button, tick - self.last_code_received))
+                    # Otherwise, generate and send command
                     else:
-                        self.logger.warning("Unknown button")
-                        continue
+                        self.logger.debug("IR receiver detected {} pressed, gap of {}us".format(button, tick - self.last_code_received))                    
+                        if button in self.command_dict:
+                            command = self.command_dict[button]
+                        else:
+                            self.logger.warning("Unknown button")
+                            continue
                     
-                    # Send the command to the LED strip
-                    self.logger.debug("Sending " + command + " to LED strip")
-                    self.to_led_strip.put_nowait(["Remote_Receiver", command])
+                        # Send the command to the LED strip
+                        self.logger.debug("Sending " + command + " to LED strip")
+                        self.to_led_strip.put_nowait(["Remote_Receiver", command])
+                    self.last_code_received = tick
+                    self.last_button_pressed = button
                 else:
                     if remote_code > 0xFF: # Don't even bother logging garbage data if it's a byte or less
                         self.logger.debug("IR receiver received garbage data: " + hex(remote_code))
