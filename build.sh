@@ -5,3 +5,4 @@ cp Modes.py stable
 cp Remote_Receiver.py stable
 cp Button.py stable
 cp Alarm_Clock.py stable
+cp TH_Sensor.py stable

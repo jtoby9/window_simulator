@@ -42,7 +42,7 @@ class Remote_Receiver(Thread):
             "power"         : "color 0 0 0 0",
             "netflix"       : "color 255 0 0 255",
             "mute"          : "color 255 255 255 255",
-            "disney+"       : "read",
+            "disney+"       : "color 125 0 0 125",
             "hulu"          : "read 2",
             "left"          : "fade",
             "right"         : "random",

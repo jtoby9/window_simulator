@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 from time import time
 
 # Constants
-pin = 13
+pin = 17
 button_codes = {
 	0x357fe817d : "power",
 	0x357e3669e : "back",

@@ -5,6 +5,7 @@ from LED_Strip import LED_Strip
 from Remote_Receiver import Remote_Receiver
 from Button import Button
 from Alarm_Clock import Alarm_Clock
+from TH_Sensor import TH_Sensor
 import os
 import sys
 import pigpio
@@ -26,6 +27,7 @@ def main():
         to_tcp_server = queue.Queue()
         to_led_strip = queue.Queue()
         to_alarm_clock = queue.Queue()
+        to_th_sensor = queue.Queue()
         
         # If there is an initial mode, pass it to the LED strip
         if len(sys.argv) > 1:
@@ -34,7 +36,7 @@ def main():
         
         # Initialize threads and add each one to the list as it gets initialized
         threads = []
-        tcp_server = TCP_Server(stop_event, to_tcp_server, to_led_strip, to_alarm_clock)
+        tcp_server = TCP_Server(stop_event, to_tcp_server, to_led_strip, to_alarm_clock, to_th_sensor)
         threads.append(tcp_server)
         
         led_strip = LED_Strip(stop_event, to_tcp_server, to_led_strip)
@@ -48,6 +50,9 @@ def main():
         
         alarm_clock = Alarm_Clock(stop_event, to_tcp_server, to_led_strip, to_alarm_clock)
         threads.append(alarm_clock)
+        
+        th_sensor = TH_Sensor(stop_event, to_tcp_server, to_th_sensor)
+        threads.append(th_sensor)
         
         # Wait
         stop_event.wait()

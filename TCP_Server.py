@@ -22,17 +22,18 @@ class TCP_Server(Thread):
     # logger (Logger): Object that writes to the log file
     
     # Constructor. Sets up server to be run
-    def __init__(self, stop_event, to_tcp_server, to_led_strip, to_alarm_clock):
+    def __init__(self, stop_event, to_tcp_server, to_led_strip, to_alarm_clock, to_th_sensor):
         # Set up logger object
         self.logger = logging.getLogger(__name__)
         
         # Initialize attributes
         self.server_commands = {
-            "help" : self.command_help,
-            "alarm" : self.command_alarm,
-            "snooze" : self.command_snooze,
-            "restart" : self.command_restart,
-            "reboot" : self.command_reboot,
+            "help"      : self.command_help,
+            "alarm"     : self.command_alarm,
+            "th"        : self.command_th,
+            "snooze"    : self.command_snooze,
+            "restart"   : self.command_restart,
+            "reboot"    : self.command_reboot,
         }
         self.macros = {
             "r?g?b?w?" : self.macro_rgbw,
@@ -52,6 +53,7 @@ class TCP_Server(Thread):
         self.to_tcp_server = to_tcp_server
         self.to_led_strip = to_led_strip
         self.to_alarm_clock = to_alarm_clock
+        self.to_th_sensor = to_th_sensor
 
         # Initialize thread
         Thread.__init__(self, name="TCP Server")
@@ -173,6 +175,24 @@ class TCP_Server(Thread):
             
         # Pass the command to the alarm clock
         self.to_alarm_clock.put_nowait(["TCP_Server", command])
+        # Return the reply
+        try:
+            reply = self.to_tcp_server.get(True, self.conn_timeout / 2)[1]
+        except queue.Empty:
+            reply = "Timed out waiting for the alarm clock to respond"
+        
+        return reply
+
+    # Returns reply for the th command
+    def command_th(self, command):
+        # If the argument is none then return the arg dict
+        if command is None:
+            return {
+                "none" : "display temperature (F) and % relative humidity measurement",
+            }
+            
+        # Pass the command to the TH Sensor
+        self.to_th_sensor.put_nowait(["TCP_Server", command])
         # Return the reply
         try:
             reply = self.to_tcp_server.get(True, self.conn_timeout / 2)[1]
