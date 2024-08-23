@@ -41,27 +41,27 @@ class Remote_Receiver(Thread):
             # Modes
             "power"         : "color 0 0 0 0",
             "netflix"       : "color 255 0 0 255",
-            "mute"          : "color 255 255 255 255",
+            "mute"          : "rainbow",
             "disney+"       : "read",
             "hulu"          : "color 125 0 0 125",
             "left"          : "fade",
             "right"         : "random",
-            "ok"            : "rainbow",
+            "ok"            : "color 255 255 255 255",
             "back"          : "scroll",
             "home"          : "cascade",
             "vudu"          : "cylon",
             
             # Modifiers
-            "up"            : "modify increase brightness",
-            "down"          : "modify decrease brightness",
+            "up"            : "modify increase w",
+            "down"          : "modify decrease w",
             "arrow"         : "modify increase r",
             "rewind"        : "modify decrease r",
             "moon"          : "modify increase g",
             "play/pause"    : "modify decrease g",
             "star"          : "modify increase b",
             "fast_forward"  : "modify decrease b",
-            "volume_up"     : "modify increase w",
-            "volume_down"   : "modify decrease w",       
+            "volume_up"     : "modify increase brightness",
+            "volume_down"   : "modify decrease brightness",       
         }
         
         # Set up GPIO

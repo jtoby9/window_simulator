@@ -17,7 +17,6 @@ class TH_Sensor(Thread):
         # Create sensor object, communicating over the board's default I2C bus
         self.sensor = adafruit_ahtx0.AHTx0(board.I2C()) # uses board.SCL and board.SDA
         self.wait_time = 300 # seconds
-        self.event = Event() # Dummy event object to use for waits. Do not ever set the internal flag
         
         # If the data file doesn't exist, create it and write the first row
         self.filename = "/home/josh/window_simulator/temp_and_humidity.csv"        
